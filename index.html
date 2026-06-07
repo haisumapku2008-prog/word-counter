@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordSmith Counter - Professional Text Metrics</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; padding: 2rem 1rem; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        header { margin-bottom: 2rem; text-align: center; }
+        header h1 { font-size: 2.25rem; color: #0f172a; font-weight: 800; letter-spacing: -0.025em; }
+        header p { color: #64748b; margin-top: 0.5rem; }
+        .container { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 768px) { .container { grid-template-columns: 3fr 1fr; } }
+        textarea { width: 100%; height: 400px; padding: 1.25rem; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; line-height: 1.6; resize: none; background: #ffffff; color: #334155; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        .stats-panel { display: flex; flex-direction: column; gap: 1rem; }
+        .stat-card { background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-val { font-size: 1.75rem; font-weight: 700; color: #2563eb; margin-bottom: 0.25rem; }
+        .stat-lbl { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>WordSmith Counter</h1>
+        <p>Real-time analytics for clean copy and precise editing.</p>
+    </header>
+    <div class="container">
+        <textarea id="editor" placeholder="Start typing or paste your manuscript content here..."></textarea>
+        <div class="stats-panel">
+            <div class="stat-card"><div class="stat-val" id="words">0</div><div class="stat-lbl">Words</div></div>
+            <div class="stat-card"><div class="stat-val" id="chars">0</div><div class="stat-lbl">Characters</div></div>
+            <div class="stat-card"><div class="stat-val" id="sentences">0</div><div class="stat-lbl">Sentences</div></div>
+            <div class="stat-card"><div class="stat-val" id="paragraphs">0</div><div class="stat-lbl">Paragraphs</div></div>
+            <div class="stat-card"><div class="stat-val" id="readTime">0m</div><div class="stat-lbl">Reading Time</div></div>
+        </div>
+    </div>
+    <script>
+        const editor = document.getElementById('editor');
+        const counters = {
+            words: document.getElementById('words'),
+            chars: document.getElementById('chars'),
+            sentences: document.getElementById('sentences'),
+            paragraphs: document.getElementById('paragraphs'),
+            readTime: document.getElementById('readTime')
+        };
+        editor.addEventListener('input', () => {
+            const text = editor.value;
+            counters.chars.innerText = text.length;
+            const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+            counters.words.innerText = words.length;
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            counters.sentences.innerText = sentences.length;
+            const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0);
+            counters.paragraphs.innerText = paragraphs.length;
+            const minutes = Math.ceil(words.length / 225);
+            counters.readTime.innerText = words.length > 0 ? `${minutes}m` : '0m';
+        });
+    </script>
+</body>
+</html>
