@@ -67,8 +67,10 @@
                 if (cb.checked) {
                     if (cb.value === 'blanks') filteredText = filteredText.replace(/\s/g, '');
                     if (cb.value === 'numbers') filteredText = filteredText.replace(/[0-9]/g, '');
-                    if (cb.value === 'punctuation') filteredText = filteredText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
-                    if (cb.value === 'symbols') filteredText = filteredText.replace(/[^a-zA-Z0-9\s]/g, '');
+                    // Punctuation: Covers standard punctuation marks (RFC 3986 gen-delims/sub-delims)
+                    if (cb.value === 'punctuation') filteredText = filteredText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\[\]\"'?]/g, '');
+                    // Symbols/Special: Removes any non-alphanumeric, non-whitespace character that isn't punctuation
+                    if (cb.value === 'symbols') filteredText = filteredText.replace(/[^a-zA-Z0-9\s.,\/#!$%\^&\*;:{}=\-_`~()\[\]\"'?]/g, '');
                 }
             });
 
