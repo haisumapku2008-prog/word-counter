@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordSmith Counter | Real-time Word, Character, and Reading Time Analytics</title>
-    <meta name="description" content="Use WordSmith Counter for professional, real-time text analysis. Get instant word, character, sentence, and paragraph counts, along with estimated reading time for your manuscript or copy.">
-    <meta name="keywords" content="word counter, character counter, text analytics, manuscript word count, reading time calculator, professional writing tool">
+    <title>WordSmith Counter | Real-time Text Analytics</title>
+    <meta name="description" content="Professional text analysis tool. Get real-time word, character, and reading time metrics with customizable filtering options for your manuscript.">
+    <meta name="keywords" content="word counter, text metrics, character filter, writing tool, manuscript analyzer">
     <link rel="canonical" href="https://yourdomain.com/wordsmith-counter/">
 
     <style>
@@ -19,11 +19,11 @@
         @media (min-width: 768px) { .container { grid-template-columns: 3fr 1fr; } }
         
         .editor-wrapper { display: flex; flex-direction: column; gap: 1rem; }
-        textarea { width: 100%; height: 400px; padding: 1.25rem; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; line-height: 1.6; resize: none; background: #ffffff; color: #334155; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-        textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        textarea { width: 100%; height: 400px; padding: 1.25rem; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; line-height: 1.6; resize: none; background: #ffffff; color: #334155; outline: none; transition: border-color 0.2s; }
+        textarea:focus { border-color: #3b82f6; }
         
-        .config-bar { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
-        select { padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; }
+        .filter-panel { display: flex; flex-wrap: wrap; gap: 0.75rem; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem; }
+        .filter-option { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
         
         .stats-panel { display: flex; flex-direction: column; gap: 1rem; }
         .stat-card { background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -38,16 +38,14 @@
     </header>
     <div class="container">
         <div class="editor-wrapper">
-            <div class="config-bar">
-                <label for="charFilter">Include in Character Count:</label>
-                <select id="charFilter">
-                    <option value="all">All Characters</option>
-                    <option value="no-blanks">No Blanks</option>
-                    <option value="no-numbers">No Numbers</option>
-                    <option value="no-punctuations">No Punctuation</option>
-                </select>
+            <div class="filter-panel" id="filterPanel">
+                <strong>Exclude:</strong>
+                <label class="filter-option"><input type="checkbox" value="blanks"> Blanks</label>
+                <label class="filter-option"><input type="checkbox" value="numbers"> Numbers</label>
+                <label class="filter-option"><input type="checkbox" value="punctuation"> Punctuation</label>
+                <label class="filter-option"><input type="checkbox" value="symbols"> Symbols/Special</label>
             </div>
-            <textarea id="editor" placeholder="Start typing or paste your manuscript content here..."></textarea>
+            <textarea id="editor" placeholder="Start typing..."></textarea>
         </div>
         <div class="stats-panel">
             <div class="stat-card"><div class="stat-val" id="words">0</div><div class="stat-lbl">Words</div></div>
@@ -59,39 +57,31 @@
     </div>
     <script>
         const editor = document.getElementById('editor');
-        const charFilter = document.getElementById('charFilter');
-        const counters = {
-            words: document.getElementById('words'),
-            chars: document.getElementById('chars'),
-            sentences: document.getElementById('sentences'),
-            paragraphs: document.getElementById('paragraphs'),
-            readTime: document.getElementById('readTime')
-        };
-
+        const checkboxes = document.querySelectorAll('#filterPanel input');
+        
         function calculate() {
             let text = editor.value;
-            
-            // Character Filter Logic
             let filteredText = text;
-            const filter = charFilter.value;
-            if (filter === 'no-blanks') filteredText = text.replace(/\s/g, '');
-            else if (filter === 'no-numbers') filteredText = text.replace(/[0-9]/g, '');
-            else if (filter === 'no-punctuations') filteredText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
-            
-            counters.chars.innerText = filteredText.length;
 
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    if (cb.value === 'blanks') filteredText = filteredText.replace(/\s/g, '');
+                    if (cb.value === 'numbers') filteredText = filteredText.replace(/[0-9]/g, '');
+                    if (cb.value === 'punctuation') filteredText = filteredText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+                    if (cb.value === 'symbols') filteredText = filteredText.replace(/[^a-zA-Z0-9\s]/g, '');
+                }
+            });
+
+            document.getElementById('chars').innerText = filteredText.length;
             const words = text.trim().split(/\s+/).filter(w => w.length > 0);
-            counters.words.innerText = words.length;
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
-            counters.sentences.innerText = sentences.length;
-            const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0);
-            counters.paragraphs.innerText = paragraphs.length;
-            const minutes = Math.ceil(words.length / 225);
-            counters.readTime.innerText = words.length > 0 ? `${minutes}m` : '0m';
+            document.getElementById('words').innerText = words.length;
+            document.getElementById('sentences').innerText = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
+            document.getElementById('paragraphs').innerText = text.split(/\n+/).filter(p => p.trim().length > 0).length;
+            document.getElementById('readTime').innerText = words.length > 0 ? `${Math.ceil(words.length / 225)}m` : '0m';
         }
 
         editor.addEventListener('input', calculate);
-        charFilter.addEventListener('change', calculate);
+        checkboxes.forEach(cb => cb.addEventListener('change', calculate));
     </script>
 </body>
 </html>
