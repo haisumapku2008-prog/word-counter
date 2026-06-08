@@ -14,10 +14,17 @@
         header { margin-bottom: 2rem; text-align: center; }
         header h1 { font-size: 2.25rem; color: #0f172a; font-weight: 800; letter-spacing: -0.025em; }
         header p { color: #64748b; margin-top: 0.5rem; }
+        
         .container { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
         @media (min-width: 768px) { .container { grid-template-columns: 3fr 1fr; } }
+        
+        .editor-wrapper { display: flex; flex-direction: column; gap: 1rem; }
         textarea { width: 100%; height: 400px; padding: 1.25rem; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 1rem; line-height: 1.6; resize: none; background: #ffffff; color: #334155; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
         textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        
+        .config-bar { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+        select { padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; }
+        
         .stats-panel { display: flex; flex-direction: column; gap: 1rem; }
         .stat-card { background: #ffffff; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .stat-val { font-size: 1.75rem; font-weight: 700; color: #2563eb; margin-bottom: 0.25rem; }
@@ -30,11 +37,21 @@
         <p>Real-time analytics for clean copy and precise editing.</p>
     </header>
     <div class="container">
-        <textarea id="editor" placeholder="Start typing or paste your manuscript content here..."></textarea>
+        <div class="editor-wrapper">
+            <div class="config-bar">
+                <label for="charFilter">Include in Character Count:</label>
+                <select id="charFilter">
+                    <option value="all">All Characters</option>
+                    <option value="no-blanks">No Blanks</option>
+                    <option value="no-numbers">No Numbers</option>
+                    <option value="no-punctuations">No Punctuation</option>
+                </select>
+            </div>
+            <textarea id="editor" placeholder="Start typing or paste your manuscript content here..."></textarea>
+        </div>
         <div class="stats-panel">
             <div class="stat-card"><div class="stat-val" id="words">0</div><div class="stat-lbl">Words</div></div>
             <div class="stat-card"><div class="stat-val" id="chars">0</div><div class="stat-lbl">Characters</div></div>
-            <div class="stat-card"><div class="stat-val" id="noSpaceChars">0</div><div class="stat-lbl">Non-Blank Chars</div></div>
             <div class="stat-card"><div class="stat-val" id="sentences">0</div><div class="stat-lbl">Sentences</div></div>
             <div class="stat-card"><div class="stat-val" id="paragraphs">0</div><div class="stat-lbl">Paragraphs</div></div>
             <div class="stat-card"><div class="stat-val" id="readTime">0m</div><div class="stat-lbl">Reading Time</div></div>
@@ -42,21 +59,26 @@
     </div>
     <script>
         const editor = document.getElementById('editor');
+        const charFilter = document.getElementById('charFilter');
         const counters = {
             words: document.getElementById('words'),
             chars: document.getElementById('chars'),
-            noSpaceChars: document.getElementById('noSpaceChars'),
             sentences: document.getElementById('sentences'),
             paragraphs: document.getElementById('paragraphs'),
             readTime: document.getElementById('readTime')
         };
-        editor.addEventListener('input', () => {
-            const text = editor.value;
-            counters.chars.innerText = text.length;
+
+        function calculate() {
+            let text = editor.value;
             
-            // New logic for non-blank characters
-            const noSpaceChars = text.replace(/\s+/g, '').length;
-            counters.noSpaceChars.innerText = noSpaceChars;
+            // Character Filter Logic
+            let filteredText = text;
+            const filter = charFilter.value;
+            if (filter === 'no-blanks') filteredText = text.replace(/\s/g, '');
+            else if (filter === 'no-numbers') filteredText = text.replace(/[0-9]/g, '');
+            else if (filter === 'no-punctuations') filteredText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '');
+            
+            counters.chars.innerText = filteredText.length;
 
             const words = text.trim().split(/\s+/).filter(w => w.length > 0);
             counters.words.innerText = words.length;
@@ -66,7 +88,10 @@
             counters.paragraphs.innerText = paragraphs.length;
             const minutes = Math.ceil(words.length / 225);
             counters.readTime.innerText = words.length > 0 ? `${minutes}m` : '0m';
-        });
+        }
+
+        editor.addEventListener('input', calculate);
+        charFilter.addEventListener('change', calculate);
     </script>
 </body>
 </html>
