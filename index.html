@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>WordSmith Counter | Real-time Word, Character, and Reading Time Analytics</title>
     <meta name="description" content="Use WordSmith Counter for professional, real-time text analysis. Get instant word, character, sentence, and paragraph counts, along with estimated reading time for your manuscript or copy.">
     <meta name="keywords" content="word counter, character counter, text analytics, manuscript word count, reading time calculator, professional writing tool">
     <link rel="canonical" href="https://yourdomain.com/wordsmith-counter/">
-
-    <meta property="og:title" content="WordSmith Counter | Real-time Text Metrics">
-    <meta property="og:description" content="Get precise word counts and reading time estimates for your writing.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://yourdomain.com/wordsmith-counter/">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -40,6 +34,7 @@
         <div class="stats-panel">
             <div class="stat-card"><div class="stat-val" id="words">0</div><div class="stat-lbl">Words</div></div>
             <div class="stat-card"><div class="stat-val" id="chars">0</div><div class="stat-lbl">Characters</div></div>
+            <div class="stat-card"><div class="stat-val" id="noSpaceChars">0</div><div class="stat-lbl">Non-Blank Chars</div></div>
             <div class="stat-card"><div class="stat-val" id="sentences">0</div><div class="stat-lbl">Sentences</div></div>
             <div class="stat-card"><div class="stat-val" id="paragraphs">0</div><div class="stat-lbl">Paragraphs</div></div>
             <div class="stat-card"><div class="stat-val" id="readTime">0m</div><div class="stat-lbl">Reading Time</div></div>
@@ -50,6 +45,7 @@
         const counters = {
             words: document.getElementById('words'),
             chars: document.getElementById('chars'),
+            noSpaceChars: document.getElementById('noSpaceChars'),
             sentences: document.getElementById('sentences'),
             paragraphs: document.getElementById('paragraphs'),
             readTime: document.getElementById('readTime')
@@ -57,6 +53,11 @@
         editor.addEventListener('input', () => {
             const text = editor.value;
             counters.chars.innerText = text.length;
+            
+            // New logic for non-blank characters
+            const noSpaceChars = text.replace(/\s+/g, '').length;
+            counters.noSpaceChars.innerText = noSpaceChars;
+
             const words = text.trim().split(/\s+/).filter(w => w.length > 0);
             counters.words.innerText = words.length;
             const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
